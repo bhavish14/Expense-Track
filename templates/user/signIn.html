@@ -1,0 +1,22 @@
+{% extends 'blocks/base_template.html' %}
+
+{% block content %}
+<h1>
+    SignIn
+</h1>
+
+    {% if message %}
+        <div class="alert alert-danger" role="alert">
+            {{ message }}
+        </div>
+    {% endif %}
+    <form action="{% url 'signIn' %}" method="POST">
+        {% csrf_token %}
+        <label>Email</label>
+        <input name='emailField' type="email" required>
+        <label>Password</label>
+        <input name='passwordField' type="password" required>
+        <button type="submit">Login</button>
+    </form>
+    <a href="{% url 'signUp' %}">Signup</a>
+{% endblock %}

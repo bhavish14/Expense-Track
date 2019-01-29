@@ -1,0 +1,85 @@
+{% extends 'blocks/base_template.html' %}
+
+{% block title %}
+    {{ userDetails.firstName }} | Receipt - {{ receipt.receipt_id }}
+{% endblock %}
+
+{% block content %}
+    <h4>Receipt Details</h4>
+
+    <div class="card">
+        <div class="card-header">
+            {{ receipt.receipt_id }}
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    {% for category, items in receipt.products.items %}
+                        <div class="card text-center">
+                            <div class="card-header">
+                                <h4>{{ category }}</h4>
+
+                            </div>
+                            <div class="card-body text-left">
+                                {% for sku, products in items.items %}
+                                    <ul class="list-inline">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ products.0 }}</h5>
+                                                <p class="card-text"><strong>UPC Code:</strong> {{ sku }}</p>
+                                                <li class="list-inline-item"><strong>Quantity:</strong> {{ products.2 }}</li>
+                                                <li class="list-inline-item"><strong>Price: </strong> {{ products.1 }}</li>    
+                                            </div>
+                                        </div>
+                                        
+                                    </ul>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        
+                        <hr/>
+                    {% endfor %}
+                </div>
+                <div class="col-md-3 md-offset-1">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Vendor: </strong>{{ receipt.vendor }}</li>
+                        <li class="list-group-item"><strong>Purchase Date: </strong>{{ receipt.purchase_date }}</li>
+                        <li class="list-group-item"><strong>Purchase Time: </strong>{{ receipt.purchase_time }}</li>
+                        <li class="list-group-item"><strong>Total: </strong>{{ receipt.total }}</li>
+                        <li class="list-group-item"><strong># of Items: </strong>{{ receipt.no_items }}</li>
+                        <li class="list-group-item text-center">
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-outline-danger btn-" data-toggle="modal" data-target="#deleteModal">
+                                Delete Receipt
+                            </button>
+                        </li>                       
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+    
+    
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Receipt - <span class="receiptModalHeader">{{ receipt.receipt_id }}</span> ? </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this receipt? Once deleted, the action can't be un-done. 
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{% url 'deleteReceipt' receipt_id=receipt.receipt_id %}" class="btn btn-outline-danger" role="button">Delete Receipt?</a>
+            </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

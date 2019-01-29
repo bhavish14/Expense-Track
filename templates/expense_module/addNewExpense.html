@@ -1,0 +1,25 @@
+{% extends 'blocks/base_template.html' %}
+
+{% block title %}
+    New Expense 
+{% endblock %}
+
+{% block content %}
+    <h1>
+        Add New Expense
+    </h1>
+    <form method="POST" action="{% url 'addNewExpense' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <button type="submit" class="input-group-text">Upload</button>
+            </div>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" name="imageFile" id="imageFile" accept='image/*'>
+                <label class="custom-file-label" for="imageFile">Choose file</label>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

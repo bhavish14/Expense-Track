@@ -1,0 +1,460 @@
+{% extends 'blocks/base_template.html' %}
+
+{% block title %}
+    {{ userDetails.firstName }} | Home
+{% endblock %}
+
+{% block content %}
+    
+    <h1>
+        UserHome
+    </h1>
+    <hr/>
+    <!-- Expenditure Overview: Begin -->
+    <h4>Expenditure Overview</h4>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" role="tab" data-toggle="tab" href="#weekly">Weekly</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" role="tab" data-toggle="tab" href="#monthly">Monthly</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" role="tab" data-toggle="tab" href="#yearly">Yearly</a>
+        </li>
+        <li class="nav-item">
+                <a class="nav-link" role="tab" data-toggle="tab" href="#max">Max Range</a>
+            </li>
+    </ul>
+    
+    <div class="tab-content">
+        <div class="tab-pane fade active in" id="weekly">
+            {% if expenditureSplitUp.current_week|length > 0 %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="weeklyChart" width="400" height="400"></canvas>
+                    </div>
+                    
+                        <div class="col-md-6">
+                            <p><strong>Category Wise Split-Up</strong></p>
+                            <table class="table"> 
+                                <thead class="thead-dark">
+                                    <th>Category</th>
+                                    <th>Total</th>
+                                </thead>
+                                
+                                {% for key in expenditureSplitUp.current_week %}
+                                    <tr>
+                                        <td>{{ key.0 }}</td>
+                                        <td>{{ key.1 }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+            {% else %}
+                <p> No Expenses this week </p>
+            {% endif %}
+        </div>
+        <div class="tab-pane fade" id="monthly">
+            {% if expenditureSplitUp.current_month|length > 0 %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="monthlyChart" width="400" height="400"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Category Wise Split-Up</strong></p>
+                        <table class="table"> 
+                            <thead class="thead-dark">
+                                <th>Category</th>
+                                <th>Total</th>
+                            </thead>
+                            
+                            {% for key in expenditureSplitUp.current_month %}
+                                <tr>
+                                    <td>{{ key.0 }}</td>
+                                    <td>{{ key.1 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <p>No Expenses this Month </p>
+            {% endif %}
+        </div>
+        <div class="tab-pane fade" id="yearly">
+            {% if expenditureSplitUp.current_year|length > 0 %}
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="yearlyChart" width="400" height="400"></canvas>
+                </div>
+                
+                    <div class="col-md-6">
+                        <p><strong>Category Wise Split-Up</strong></p>
+                        <table class="table"> 
+                            <thead class="thead-dark">
+                                <th>Category</th>
+                                <th>Total</th>
+                            </thead>
+                            {% for key in expenditureSplitUp.current_year %}
+                                <tr>
+                                    <td>{{ key.0 }}</td>
+                                    <td>{{ key.1 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+            </div>
+            {% else %}
+                <p>No Expenses this week </p>
+            {% endif %}
+        </div>
+        <div class="tab-pane fade" id="max">
+            {% if expenditureOverview.category_total.items|length > 0 %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="maxRangeChart" width="400" height="400"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Category Wise Split-Up</strong></p>
+                        <table class="table"> 
+                            <thead class="thead-dark">
+                                <th>Category</th>
+                                <th>Total</th>
+                            </thead>
+                            
+                            {% for key, value in expenditureOverview.category_total.items %}
+                                <tr>
+                                    <td>{{ key }}</td>
+                                    <td>{{ value }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            <p>Total Spendings: ${{ expenditureOverview.total }}</p>
+            {% else %}
+                <p>No Expenditure</p>
+            {% endif %}
+            
+        </div>
+    </div>
+    
+    <!-- Expenditure Overview: End -->
+    <hr/>
+    <h4>Recent Transactions</h4>
+    <table class="table">
+        <thead class="thead-dark">
+            <th>Receipt Id</th>
+            <th>Vendor</th>
+            <th>Total Spending</th>
+            <th>Date</th>
+        </thead>
+        {% for item in userReceipts %}
+            <tr>
+                <td><a href="{% url 'viewReceipt' receipt_id=item.0 %}">{{ item.0 }}</a></td>
+                <td>{{ item.1 }}</td>
+                <td>{{ item.2 }}</td>
+                <td>{{ item.3 }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script>
+        /* 
+            Max Range Chart
+        */
+
+        var ctxMaxRange = document.getElementById("maxRangeChart").getContext('2d');
+        
+        var max_range = [
+            {% for key, value in expenditureOverview.category_total.items %}{{ value }},{% endfor %}
+        ]      
+
+        //line chart data
+        var dataMaxRange = {
+            labels: [{% for key, value in expenditureOverview.category_total.items %}"{{ key }}",{% endfor %}],
+            datasets: [
+                {
+                    label: "Max Range",
+                    data: max_range,
+                    backgroundColor: [
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                    ],
+                    fill: true,
+                    radius: 5
+                },
+            ]
+        };
+
+        //options
+        var optionsMaxRange = {
+            responsive: true,
+            title: {
+                display: true,
+                position: "top",
+                text: "Line Graph",
+                fontSize: 18,
+                fontColor: "#111"
+            },
+            legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                    fontColor: "#333",
+                    fontSize: 16
+                }
+            }
+        };
+
+        //create Chart class object
+        var chartYear = new Chart(ctxMaxRange, {
+            type: "line",
+            data: dataMaxRange,
+            options: optionsMaxRange
+        });
+        
+       
+        /* 
+            Yearly Chart
+        */
+
+        var ctxYear = document.getElementById("yearlyChart").getContext('2d');
+        var previous_year = [
+            {% for j in expenditureSplitUp.previous_year %}{{ j.1 }},{% endfor %}
+        ]
+        var current_year = [
+            {% for j in expenditureSplitUp.current_year %}{{ j.1 }},{% endfor %}
+        ]      
+        
+        //line chart data
+        var dataYear = {
+            labels: [{% for j in itemsIndex.year %}"{{ j }}",{% endfor %}],
+            datasets: [
+                {
+                    label: "2018",
+                    data: current_year,
+                    backgroundColor: [
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                    ],
+                    //borderColor: "lightblue",
+                    fill: true,
+                    radius: 5
+                },
+                {
+                    label: "2017",
+                    data: previous_year,
+                    backgroundColor: [                        
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)', 
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                    ],
+                    //borderColor: "lightgreen",
+                    fill: true,
+                    radius: 5
+                }
+            ]
+        };
+
+        //options
+        var optionsYear = {
+            responsive: true,
+            title: {
+                display: true,
+                position: "top",
+                text: "Line Graph",
+                fontSize: 18,
+                fontColor: "#111"
+            },
+            legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                    fontColor: "#333",
+                    fontSize: 16
+                }
+            }
+        };
+
+        //create Chart class object
+        var chartYear = new Chart(ctxYear, {
+            type: "line",
+            data: dataYear,
+            options: optionsYear
+        });
+
+
+
+        /*
+            Monthly Chart
+        */
+
+        var elementMonth = document.getElementById("monthlyChart").getContext('2d');
+        var previous_month = [
+            {% for j in expenditureSplitUp.previous_month %}{{ j.1 }},{% endfor %}
+        ]
+        var current_month = [
+            {% for j in expenditureSplitUp.current_month %}{{ j.1 }},{% endfor %}
+        ] 
+        //line chart data
+        var dataMonth = {
+            labels: [{% for j in itemsIndex.month %}"{{ j }}",{% endfor %}],
+            datasets: [
+                {
+                    label: "2018",
+                    data: current_month,
+                    backgroundColor: [
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                    ],
+                    
+                    fill: true,
+                    radius: 5
+                },
+                {
+                    label: "2017",
+                    data: previous_month,
+                    backgroundColor: [                        
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)', 
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                    ],
+                    
+                    fill: true,
+                    radius: 5
+                }
+            ]
+        };
+
+        //options
+        var optionsMonth = {
+            responsive: true,
+            title: {
+                display: true,
+                position: "top",
+                text: "Line Graph",
+                fontSize: 18,
+                fontColor: "#111"
+            },
+            legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                    fontColor: "#333",
+                    fontSize: 16
+                }
+            }
+        };
+
+        //create Chart class object
+        var monthChart = new Chart(elementMonth, {
+            type: "line",
+            data: dataMonth,
+            options: optionsMonth
+        });
+    
+
+        /*
+            Weekly Chart
+        */
+
+        var elementWeek = document.getElementById("weeklyChart").getContext('2d');
+        var previous_week = [
+            {% for j in expenditureSplitUp.previous_week %}{{ j.1 }},{% endfor %}
+        ]
+        var current_week = [
+            {% for j in expenditureSplitUp.current_week %}{{ j.1 }},{% endfor %}
+        ] 
+        //line chart data
+        var dataWeek = {
+            labels: [{% for j in itemsIndex.week %}"{{ j }}",{% endfor %}],
+            datasets: [
+                {
+                    label: "Jan",
+                    data: current_week,
+                    backgroundColor: [
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                        'rgb(139,216,189, 0.4)',
+                    ],
+                    
+                    fill: true,
+                    radius: 5
+                },
+                {
+                    label: "Dec",
+                    data: previous_week,
+                    backgroundColor: [                        
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)', 
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                        'rgb(36,54,101, 0.4)',
+                    ],
+                
+                    fill: true,
+                    radius: 5
+                }
+            ]
+        };
+
+        //options
+        var optionsWeek = {
+            responsive: true,
+            title: {
+                display: true,
+                position: "top",
+                text: "Line Graph",
+                fontSize: 18,
+                fontColor: "#111"
+            },
+            legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                    fontColor: "#333",
+                    fontSize: 16
+                }
+            }
+        };
+
+        //create Chart class object
+        var monthChart = new Chart(elementWeek, {
+            type: "line",
+            data: dataWeek,
+            options: optionsWeek
+        });
+
+
+
+    </script>
+{% endblock %}
