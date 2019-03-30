@@ -16,6 +16,7 @@ cd <your-path>/Expense-Track
 sudo pip3 install -r requirements.txt
 python manage.py runserver
 ```
+Note: Please update the Expense_track/local_settings.py with your firebase configuration.
 
 ## Built With
 
@@ -30,3 +31,4 @@ python manage.py runserver
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
