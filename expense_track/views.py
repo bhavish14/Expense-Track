@@ -42,7 +42,7 @@ def user_home(request):
     current_spending = []
     previous_spending = []
 
-    firebase_receipts = settings.FIREBASE_DATABASE.child('user_receipts').child(user_details['user_id']).order_by_child('purchase_date').get().val()
+    firebase_receipts = settings.FIREBASE_DATABASE.child('user_receipts').child(user_details['user_id']).get().val()
     if firebase_receipts != None:
         user_receipts = []
         for key, value in firebase_receipts.items():

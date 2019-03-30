@@ -563,17 +563,6 @@ def main():
 
     image_paths = [
         '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts/IMG_0802.jpeg', 
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts/IMG_0803.jpeg', 
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts/IMG_0804.jpeg', 
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts/IMG_0808.jpeg', 
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts/IMG_0809.jpeg', 
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts/IMG_0874.jpeg',
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts_walmart/img1.jpeg',
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts_walmart/img2.jpeg',
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts_walmart/img3.jpeg',
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts_walmart/img4.jpeg',
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts_walmart/img5.jpeg',
-        '/Users/bhavish96.n/Projects/Expense-Tracker/images/receipts_walmart/img6.jpeg',
         
 
     ]
@@ -598,7 +587,7 @@ def main():
         for i in range(image.shape[0]):
             t.append(np.sum(image[i]))
             
-        MAX_ROW_VALUE = max(t) - (max(t) * 0.05)
+        MAX_ROW_VALUE = max(t) - (max(t) * 0.10)
 
         count = 0
 
@@ -606,19 +595,23 @@ def main():
             if t[i] >= MAX_ROW_VALUE:
                 final_rows.append(image[i])
                 final_rows.append(image[i])
+                final_rows.append(image[i])
+                final_rows.append(image[i])
             final_rows.append(image[i])
 
         final_image = np.array(final_rows)
-        
+        plt.imsave('/Users/bhavish96.n/Projects/Django/expense_track/expense_module/image_resized.jpg', final_image)
+
+
+        '''
         ocr_object = detect_text(final_image)
         id,  receipt_details, sku_codes, items = ocr_object.get_text()
         print ('Receipt Id:', id, '\n')
         print ('Items:', items, '\n')
         end = time.time()
         print('Runtime:', end - start, '\n\n')
+        '''
 
 if __name__ == '__main__':
     main()
-
-
 

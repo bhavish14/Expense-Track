@@ -289,7 +289,6 @@ def delete_receipt(request, receipt_id):
             else:
                 category_sum[category] += float(details[1])
 
-    print (category_sum)
 
     purchase_date = receipt_details['purchase_date']
     purchase_date = purchase_date.split('/')
@@ -311,12 +310,6 @@ def delete_receipt(request, receipt_id):
     yearly_expenditure_category = settings.FIREBASE_DATABASE.child('user_expenditure').child(user_details['user_id']).child(year).child('category_total').get().val()
     yearly_expenditure_vendors = settings.FIREBASE_DATABASE.child('user_expenditure').child(user_details['user_id']).child(year).child('vendors').get().val()
     
-
-    print ('weekly before: ', weekly_expenditure_category, '\n', weekly_expenditure_vendors, '\n', weekly_expenditure_receipts,'\n')
-    print ('monthly before: ', weekly_expenditure_category, '\n', weekly_expenditure_vendors, '\n')
-    print ('yearly before: ', yearly_expenditure_category, '\n', yearly_expenditure_vendors, '\n')
-
-
     for category, total in category_sum.items():
         weekly_expenditure_category[category] -= float(total)
         monthly_expenditure_category[category] -= float(total)
@@ -354,6 +347,7 @@ def delete_receipt(request, receipt_id):
     # Removing Receipt
     settings.FIREBASE_DATABASE.child('user_receipts').child(user_details['user_id']).child(receipt_id).remove()
     return HttpResponseRedirect('/userHome')
+
 
 '''
     Utility functions
@@ -481,23 +475,3 @@ def test(request):
             'receiptItems': receipt_items,
             'sku_codes': sku_codes,
         })
-
- 
-    
-
-
-
-
-
-'''
-    try: 
-        user_details = {
-            'user_id': request.session['user_id'],
-            'firstName': settings.FIREBASE_DATABASE.child('users').child(request.session['user_id']).child('details').get().val()['firstName'],
-            'lastname': settings.FIREBASE_DATABASE.child('users').child(request.session['user_id']).child('details').get().val()['lastName']
-        }
-
-        return render(request, 'expense_module/viewExpenses.html', context={'userDetails': user_details})
-    except:
-        return HttpResponseRedirect('/')
-'''
